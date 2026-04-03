@@ -155,6 +155,7 @@ let getOrCreateGraph (args: GraphNameArgs) : Task<Result<Content list, McpError>
                     use createCmd = new NpgsqlCommand(
                         sprintf "SELECT create_graph('%s')" (escapeStr scopedName), conn)
                     do! createCmd.ExecuteNonQueryAsync() :> Task
+                    invalidateCache "list_graphs"
                     return "created"
             })
             return ok (sprintf """{"name": "%s", "status": "%s"}""" args.graph_name status)
@@ -165,18 +166,20 @@ let getOrCreateGraph (args: GraphNameArgs) : Task<Result<Content list, McpError>
 let listGraphs (_args: {| dummy: string option |}) : Task<Result<Content list, McpError>> =
     task {
         try
-            let prefix = sprintf "t_%s__" (getTenantId ())
-            let! graphs = withConnection (fun conn -> task {
-                use cmd = new NpgsqlCommand(
-                    "SELECT name FROM ag_catalog.ag_graph WHERE name LIKE @prefix ORDER BY name", conn)
-                cmd.Parameters.AddWithValue("prefix", prefix + "%") |> ignore
-                use! reader = cmd.ExecuteReaderAsync()
-                let results = ResizeArray<string>()
-                while reader.Read() do
-                    results.Add(unscoped (reader.GetString(0)))
-                return results |> Seq.toList
+            let! json = withTtlCache "list_graphs" (TimeSpan.FromSeconds 10.) (fun () -> task {
+                let prefix = sprintf "t_%s__" (getTenantId ())
+                let! graphs = withConnection (fun conn -> task {
+                    use cmd = new NpgsqlCommand(
+                        "SELECT name FROM ag_catalog.ag_graph WHERE name LIKE @prefix ORDER BY name", conn)
+                    cmd.Parameters.AddWithValue("prefix", prefix + "%") |> ignore
+                    use! reader = cmd.ExecuteReaderAsync()
+                    let results = ResizeArray<string>()
+                    while reader.Read() do
+                        results.Add(unscoped (reader.GetString(0)))
+                    return results |> Seq.toList
+                })
+                return graphs |> List.map (sprintf "\"%s\"") |> String.concat ", " |> sprintf "[%s]"
             })
-            let json = graphs |> List.map (sprintf "\"%s\"") |> String.concat ", " |> sprintf "[%s]"
             return ok json
         with ex ->
             return ok (sprintf "Error: %s" ex.Message)
@@ -197,6 +200,7 @@ let dropGraphs (args: DropGraphsArgs) : Task<Result<Content list, McpError>> =
                         dropped.Add(name)
                     with _ -> ()
             })
+            invalidateCache "list_graphs"
             let json = dropped |> Seq.map (sprintf "\"%s\"") |> String.concat ", " |> sprintf """{"dropped": [%s]}"""
             return ok json
         with ex ->
@@ -215,6 +219,7 @@ let upsertVertex (args: UpsertVertexArgs) : Task<Result<Content list, McpError>>
                 sprintf "MERGE (n:%s {ident: %s}) SET %s RETURN n"
                     label (quoteStr args.vertex_ident) setClause
             let! records = executeCypherRead args.graph_name cypher
+            invalidateCache (sprintf "schema:%s" args.graph_name)
             return ok (recordsToJson records)
         with ex ->
             return ok (sprintf "Error: %s" ex.Message)
@@ -370,9 +375,17 @@ let getNeighbors (args: GetNeighborsArgs) : Task<Result<Content list, McpError>>
                 | "in" -> sprintf "(start)<-[*1..%d]-(neighbor)" depth
                 | _ -> sprintf "(start)-[*1..%d]-(neighbor)" depth
             let cypherV = sprintf "MATCH %s WHERE start.ident = %s RETURN DISTINCT neighbor" pattern (quoteStr args.vertex_ident)
-            let cypherE = sprintf "MATCH (start {ident: %s})-[e]-(neighbor) RETURN e" (quoteStr args.vertex_ident)
-            let! vertices = executeCypherRead args.graph_name cypherV
-            let! edges = executeCypherRead args.graph_name cypherE
+            // Directed edge queries are faster in AGE than bidirectional
+            let cypherE =
+                match direction with
+                | "out" -> sprintf "MATCH (start {ident: %s})-[e]->(neighbor) RETURN e" (quoteStr args.vertex_ident)
+                | "in" -> sprintf "MATCH (start {ident: %s})<-[e]-(neighbor) RETURN e" (quoteStr args.vertex_ident)
+                | _ -> sprintf "MATCH (start {ident: %s})-[e]->(neighbor) RETURN e UNION ALL MATCH (start {ident: %s})<-[e]-(neighbor) RETURN e"
+                            (quoteStr args.vertex_ident) (quoteStr args.vertex_ident)
+            // Batch: single connection for both queries
+            let! results = executeCypherBatch args.graph_name [ cypherV; cypherE ]
+            let vertices = results.[0]
+            let edges = results.[1]
             let result = toJson (fun w ->
                 w.WriteStartObject()
                 w.WritePropertyName("vertices")
@@ -394,8 +407,9 @@ let getNeighbors (args: GetNeighborsArgs) : Task<Result<Content list, McpError>>
 let exportGraph (args: GraphNameArgs) : Task<Result<Content list, McpError>> =
     task {
         try
-            let! vertexRecords = executeCypherRead args.graph_name "MATCH (n) RETURN n"
-            let! edgeRecords = executeCypherRead args.graph_name "MATCH ()-[e]->() RETURN e"
+            let! results = executeCypherBatch args.graph_name [ "MATCH (n) RETURN n"; "MATCH ()-[e]->() RETURN e" ]
+            let vertexRecords = results.[0]
+            let edgeRecords = results.[1]
             let result = toJson (fun w ->
                 w.WriteStartObject()
                 w.WriteString("name", args.graph_name)
@@ -427,8 +441,10 @@ let importGraph (args: ImportGraphArgs) : Task<Result<Content list, McpError>> =
 let getSchema (args: GraphNameArgs) : Task<Result<Content list, McpError>> =
     task {
         try
-            let! records = executeCypherRead args.graph_name "MATCH (n) RETURN label(n) AS label, count(*) AS cnt"
-            let result = if List.isEmpty records then "Empty graph" else recordsToJson records
+            let! result = withTtlCache (sprintf "schema:%s" args.graph_name) (TimeSpan.FromSeconds 10.) (fun () -> task {
+                let! records = executeCypherRead args.graph_name "MATCH (n) RETURN label(n) AS label, count(*) AS cnt"
+                return if List.isEmpty records then "Empty graph" else recordsToJson records
+            })
             return ok result
         with ex ->
             return ok (sprintf "Error: %s" ex.Message)
@@ -439,8 +455,9 @@ let getSchema (args: GraphNameArgs) : Task<Result<Content list, McpError>> =
 let generateVisualization (args: GraphNameArgs) : Task<Result<Content list, McpError>> =
     task {
         try
-            let! vRecords = executeCypherRead args.graph_name "MATCH (n) RETURN n"
-            let! eRecords = executeCypherRead args.graph_name "MATCH ()-[e]->() RETURN e"
+            let! results = executeCypherBatch args.graph_name [ "MATCH (n) RETURN n"; "MATCH ()-[e]->() RETURN e" ]
+            let vRecords = results.[0]
+            let eRecords = results.[1]
 
             let idMap = Collections.Generic.Dictionary<int64, string>()
             let nodes = ResizeArray<string>()

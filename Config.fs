@@ -226,6 +226,17 @@ let executeCypherWrite (graphName: string) (cypher: string) : Task<int> =
         return records.Length
     })
 
+/// Execute multiple cypher reads on a single connection (saves LOAD 'age' + SET per query)
+let executeCypherBatch (graphName: string) (queries: string list) : Task<GraphRecord list list> =
+    withConnection (fun conn -> task {
+        let sn = scoped graphName
+        let results = ResizeArray<GraphRecord list>()
+        for q in queries do
+            let! records = executeCypherOnConn conn None sn q
+            results.Add(records)
+        return results |> Seq.toList
+    })
+
 // ─── Transaction helper ───
 
 type CypherTx = {
@@ -262,6 +273,34 @@ let withCypherTransaction (graphName: string) (fn: CypherTx -> Task<'T>) : Task<
         finally
             conn.Dispose()
     }
+
+// ─── TTL cache for metadata queries ───
+
+open System.Collections.Concurrent
+
+type private CacheEntry<'T> = { Value: 'T; ExpiresAt: DateTime }
+
+let private cache = ConcurrentDictionary<string, obj>()
+
+let withTtlCache (key: string) (ttl: TimeSpan) (fn: unit -> Task<'T>) : Task<'T> =
+    task {
+        match cache.TryGetValue(key) with
+        | true, entry ->
+            let e = entry :?> CacheEntry<'T>
+            if DateTime.UtcNow < e.ExpiresAt then return e.Value
+            else
+                let! value = fn ()
+                cache.[key] <- { Value = value; ExpiresAt = DateTime.UtcNow + ttl } :> obj
+                return value
+        | _ ->
+            let! value = fn ()
+            cache.[key] <- { Value = value; ExpiresAt = DateTime.UtcNow + ttl } :> obj
+            return value
+    }
+
+let invalidateCache (prefix: string) =
+    for key in cache.Keys do
+        if key.StartsWith(prefix) then cache.TryRemove(key) |> ignore
 
 // ─── GraphValue → JSON serialization ───
 

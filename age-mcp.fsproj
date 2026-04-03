@@ -5,6 +5,8 @@
     <TargetFramework>net10.0</TargetFramework>
     <RootNamespace>AgeMcp</RootNamespace>
 
+    <PublishReadyToRun>true</PublishReadyToRun>
+
     <!-- dotnet tool -->
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>age-mcp</ToolCommandName>
