@@ -11,7 +11,7 @@ Built with F# on .NET 10 -- 1,300 lines, 21 tools, zero Python dependencies.
 docker compose up -d
 
 # 2. Install the tool
-dotnet tool install --global --add-source bin/Release AgeMcp
+dotnet tool install --global AgeMcp
 
 # 3. Run
 AGE_CONNECTION_STRING="Host=localhost;Port=5435;Database=agemcp;Username=agemcp;Password=agemcp" age-mcp
@@ -135,7 +135,7 @@ dotnet run
 
 # Or install as tool
 dotnet pack -c Release
-dotnet tool install --global --add-source bin/Release AgeMcp
+dotnet tool install --global AgeMcp
 ```
 
 Dependencies ([FsMcp.Core](https://www.nuget.org/packages/FsMcp.Core), [FsMcp.Server](https://www.nuget.org/packages/FsMcp.Server), [Fyper](https://www.nuget.org/packages/Fyper)) are restored from NuGet automatically.
