@@ -1,0 +1,36 @@
+# age-mcp
+
+> MCP server that connects AI assistants to Apache AGE graph databases on PostgreSQL
+
+age-mcp is an open-source Model Context Protocol (MCP) server for Apache AGE graph databases. It exposes 21 tools that let AI assistants (Claude, ChatGPT, GitHub Copilot) create, query, and visualize graph data using natural language. Built with F# on .NET 10.
+
+## Key Facts
+
+- License: MIT
+- Language: F#
+- Runtime: .NET 10
+- Database: PostgreSQL + Apache AGE extension
+- Protocol: MCP (Model Context Protocol) over stdio
+- Install: `dotnet tool install --global AgeMcp`
+- Source: https://github.com/Neftedollar/age-mcp
+- Docs: https://neftedollar.github.io/age-mcp
+
+## Tools (21)
+
+Graph management: get_or_create_graph, list_graphs, drop_graphs
+Vertices: upsert_vertex, drop_vertex
+Edges: upsert_edge, drop_edge
+Batch: upsert_graph
+Query: cypher_query, cypher_write, search_vertices, search_edges, get_neighbors, get_schema
+Export/Import: export_graph, import_graph
+Visualization: generate_visualization (vis.js HTML)
+Semantic search: semantic_search (pgvector), graph_context (Graph RAG)
+OpenBrain: sync_to_openbrain, import_from_openbrain
+
+## Detailed docs
+
+- [Getting Started](https://neftedollar.github.io/age-mcp/getting-started)
+- [Tools Reference](https://neftedollar.github.io/age-mcp/tools)
+- [Configuration](https://neftedollar.github.io/age-mcp/configuration)
+- [Migration from Python](https://neftedollar.github.io/age-mcp/migration)
+- [Performance Benchmarks](https://neftedollar.github.io/age-mcp/performance)
