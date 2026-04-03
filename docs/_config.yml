@@ -1,0 +1,13 @@
+title: age-mcp
+description: MCP server for Apache AGE graph databases
+remote_theme: just-the-docs/just-the-docs
+url: https://neftedollar.github.io/age-mcp
+
+aux_links:
+  GitHub: https://github.com/Neftedollar/age-mcp
+  NuGet: https://www.nuget.org/packages/AgeMcp
+
+nav_enabled: true
+search_enabled: true
+
+footer_content: "MIT License. Built with F# on .NET 10."
