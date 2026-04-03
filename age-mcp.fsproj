@@ -24,13 +24,9 @@
 
   <ItemGroup>
     <PackageReference Include="Fyper" Version="1.1.0" />
+    <PackageReference Include="FsMcp.Core" Version="1.0.0" />
+    <PackageReference Include="FsMcp.Server" Version="1.0.0" />
     <PackageReference Include="Npgsql" Version="8.*" />
-  </ItemGroup>
-
-  <!-- FsMcp: project references (not yet published to NuGet) -->
-  <ItemGroup>
-    <ProjectReference Include="../FsMcp/src/FsMcp.Core/FsMcp.Core.fsproj" />
-    <ProjectReference Include="../FsMcp/src/FsMcp.Server/FsMcp.Server.fsproj" />
   </ItemGroup>
 
 </Project>

@@ -138,7 +138,7 @@ dotnet pack -c Release
 dotnet tool install --global --add-source bin/Release AgeMcp
 ```
 
-Requires [FsMcp](https://github.com/Neftedollar/FsMcp) as a sibling directory (project reference, not yet on NuGet).
+Dependencies ([FsMcp.Core](https://www.nuget.org/packages/FsMcp.Core), [FsMcp.Server](https://www.nuget.org/packages/FsMcp.Server), [Fyper](https://www.nuget.org/packages/Fyper)) are restored from NuGet automatically.
 
 ## License
 
