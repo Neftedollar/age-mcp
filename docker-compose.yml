@@ -1,0 +1,24 @@
+services:
+  db:
+    build:
+      context: ./docker
+      args:
+        PG_MAJOR: ${PG_MAJOR:-17}
+        AGE_VERSION: ${AGE_VERSION:-1.6.0}
+    ports:
+      - "${DB_PORT:-5435}:5432"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-agemcp}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-agemcp}
+      POSTGRES_DB: ${POSTGRES_DB:-agemcp}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./docker/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-agemcp}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  pgdata:

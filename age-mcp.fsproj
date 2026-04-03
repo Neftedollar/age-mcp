@@ -4,16 +4,24 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>net10.0</TargetFramework>
     <RootNamespace>AgeMcp</RootNamespace>
+
+    <!-- dotnet tool -->
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>age-mcp</ToolCommandName>
+    <PackageId>AgeMcp</PackageId>
+    <Version>2.0.0</Version>
+    <Description>MCP server for Apache AGE graph databases</Description>
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="Config.fs" />
+    <Compile Include="Embeddings.fs" />
     <Compile Include="Tools.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Fyper" Version="1.1.0" />
-    <PackageReference Include="Fyper.Age" Version="1.1.0" />
     <PackageReference Include="Npgsql" Version="8.*" />
   </ItemGroup>
 
