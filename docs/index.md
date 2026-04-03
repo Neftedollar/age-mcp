@@ -1,6 +1,7 @@
 ---
 layout: default
-title: Home
+title: "age-mcp: MCP Server for Apache AGE Graph Databases"
+description: "Connect AI assistants (Claude, ChatGPT, Copilot) to Apache AGE graph databases via Model Context Protocol. 21 tools: Cypher queries, graph CRUD, semantic search, visualization. F#/.NET 10."
 nav_order: 1
 ---
 
@@ -16,6 +17,10 @@ Lets AI assistants (Claude, ChatGPT, Copilot) query and mutate graph data via th
 
 ---
 
+## What is age-mcp?
+
+age-mcp is an [MCP server](https://modelcontextprotocol.io/) that gives AI assistants direct access to [Apache AGE](https://age.apache.org/) graph databases running on PostgreSQL. Instead of writing Cypher queries manually, you describe what you want in natural language and the AI calls the right tools automatically.
+
 ## Features
 
 - **21 MCP tools** -- graph CRUD, Cypher queries, search, export/import, visualization, semantic search, Graph RAG
@@ -29,10 +34,10 @@ Lets AI assistants (Claude, ChatGPT, Copilot) query and mutate graph data via th
 ## Quick Start
 
 ```bash
-# Start the database
+# Start PostgreSQL + Apache AGE
 docker compose up -d
 
-# Install
+# Install the MCP server
 dotnet tool install --global AgeMcp
 
 # Run
@@ -56,3 +61,11 @@ Then add to your Claude Desktop or Claude Code config:
   }
 }
 ```
+
+## Use Cases
+
+- **Knowledge graphs** -- build and query knowledge bases from AI conversations
+- **People & org charts** -- model teams, roles, and relationships
+- **Project tracking** -- link tasks, dependencies, and milestones in a graph
+- **RAG with graph context** -- semantic search over vertices + N-hop neighbor expansion for richer LLM context
+- **Data exploration** -- ask questions about existing graph data in natural language

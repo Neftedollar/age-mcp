@@ -1,7 +1,13 @@
 title: age-mcp
-description: MCP server for Apache AGE graph databases
+description: MCP server for Apache AGE graph databases — 21 tools for Cypher queries, graph CRUD, semantic search, and visualization from AI assistants via Model Context Protocol
 remote_theme: just-the-docs/just-the-docs
 url: https://neftedollar.github.io/age-mcp
+baseurl: /age-mcp
+lang: en
+
+plugins:
+  - jekyll-seo-tag
+  - jekyll-sitemap
 
 aux_links:
   GitHub: https://github.com/Neftedollar/age-mcp
@@ -10,4 +16,13 @@ aux_links:
 nav_enabled: true
 search_enabled: true
 
+heading_anchors: true
+
 footer_content: "MIT License. Built with F# on .NET 10."
+
+# SEO defaults
+defaults:
+  - scope:
+      path: ""
+    values:
+      image: false

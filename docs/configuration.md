@@ -1,6 +1,7 @@
 ---
 layout: default
-title: Configuration
+title: "Configuration — Environment Variables, Docker, Multi-Tenancy"
+description: "Configure age-mcp: connection strings, tenant isolation, Docker setup, embedding API for semantic search. All environment variables documented."
 nav_order: 4
 ---
 

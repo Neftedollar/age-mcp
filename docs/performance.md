@@ -1,6 +1,7 @@
 ---
 layout: default
-title: Performance
+title: "Performance Benchmarks"
+description: "BenchmarkDotNet results for age-mcp: sub-millisecond cached queries, 92ms graph traversal, connection batching, TTL cache, and directed query optimizations."
 nav_order: 6
 ---
 

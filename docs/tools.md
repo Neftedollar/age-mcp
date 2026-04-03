@@ -1,6 +1,7 @@
 ---
 layout: default
-title: Tools Reference
+title: "Tools Reference — All 21 MCP Tools"
+description: "Complete reference for all 21 age-mcp tools: graph CRUD, Cypher queries, vertex/edge search, export/import, visualization, semantic search, Graph RAG, and OpenBrain bridge."
 nav_order: 3
 ---
 

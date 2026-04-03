@@ -1,6 +1,7 @@
 ---
 layout: default
-title: Migration from Python
+title: "Migration from Python agemcp"
+description: "Drop-in replacement guide: migrate from Python agemcp to F# age-mcp with zero data migration. Tool mapping, embedding differences, and configuration translation."
 nav_order: 5
 ---
 

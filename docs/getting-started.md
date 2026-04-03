@@ -1,6 +1,7 @@
 ---
 layout: default
-title: Getting Started
+title: "Getting Started — Install and Connect age-mcp"
+description: "Step-by-step guide to install age-mcp, start Apache AGE with Docker, and connect to Claude Desktop or Claude Code via MCP."
 nav_order: 2
 ---
 
