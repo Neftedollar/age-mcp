@@ -78,6 +78,26 @@ let main _argv =
 
         // ─── Batch operations ───
 
+        tool (TypedTool.define<DropVerticesArgs>
+            "drop_vertices"
+            "Remove multiple vertices (and their connected edges) by ident. vertex_idents: JSON array of ident strings."
+            dropVertices |> unwrapResult)
+
+        tool (TypedTool.define<DropEdgesArgs>
+            "drop_edges"
+            "Remove multiple edges by ident. edge_idents: JSON array of ident strings."
+            dropEdges |> unwrapResult)
+
+        tool (TypedTool.define<UpsertVerticesArgs>
+            "upsert_vertices"
+            "Insert or update multiple vertices in a single transaction. vertices: JSON array — each needs 'ident', optional 'label' (default 'Node'), and any extra properties."
+            upsertVertices |> unwrapResult)
+
+        tool (TypedTool.define<UpsertEdgesArgs>
+            "upsert_edges"
+            "Insert or update multiple edges in a single transaction. edges: JSON array — each needs 'label', 'start_ident', 'end_ident', optional 'ident' and extra properties."
+            upsertEdges |> unwrapResult)
+
         tool (TypedTool.define<UpsertGraphArgs>
             "upsert_graph"
             "Deep-merge vertices and edges into a graph (transactional). vertices: JSON array — each needs 'ident' and 'label'. edges: JSON array — each needs 'label', 'start_ident', 'end_ident'."

@@ -28,6 +28,16 @@ type UpsertEdgeArgs = {
     properties: string option
 }
 
+type UpsertVerticesArgs = {
+    graph_name: string
+    vertices: string
+}
+
+type UpsertEdgesArgs = {
+    graph_name: string
+    edges: string
+}
+
 type UpsertGraphArgs = {
     graph_name: string
     vertices: string
@@ -36,6 +46,8 @@ type UpsertGraphArgs = {
 
 type DropVertexArgs = { graph_name: string; vertex_ident: string }
 type DropEdgeArgs = { graph_name: string; edge_ident: string }
+type DropVerticesArgs = { graph_name: string; vertex_idents: string }
+type DropEdgesArgs = { graph_name: string; edge_idents: string }
 type CypherQueryArgs = { graph_name: string; query: string }
 
 type SearchVerticesArgs = {
@@ -266,6 +278,89 @@ let dropEdge (args: DropEdgeArgs) : Task<Result<Content list, McpError>> =
     }
 
 // ─── Batch operations ───
+
+let dropVertices (args: DropVerticesArgs) : Task<Result<Content list, McpError>> =
+    task {
+        try
+            let idents = parseJsonArr args.vertex_idents
+            let identArr = idents.EnumerateArray() |> Seq.map (fun v -> quoteStr (v.GetString())) |> Seq.toList
+            if identArr.IsEmpty then return ok """{"deleted": 0}"""
+            else
+                let inList = identArr |> String.concat ", "
+                let cypher = sprintf "MATCH (n) WHERE n.ident IN [%s] DETACH DELETE n" inList
+                let! count = executeCypherWrite args.graph_name cypher
+                return ok (sprintf """{"deleted": %d}""" count)
+        with ex ->
+            return ok (sprintf "Error: %s" ex.Message)
+    }
+
+let dropEdges (args: DropEdgesArgs) : Task<Result<Content list, McpError>> =
+    task {
+        try
+            let idents = parseJsonArr args.edge_idents
+            let identArr = idents.EnumerateArray() |> Seq.map (fun v -> quoteStr (v.GetString())) |> Seq.toList
+            if identArr.IsEmpty then return ok """{"deleted": 0}"""
+            else
+                let inList = identArr |> String.concat ", "
+                let cypher = sprintf "MATCH ()-[e]->() WHERE e.ident IN [%s] DELETE e" inList
+                let! count = executeCypherWrite args.graph_name cypher
+                return ok (sprintf """{"deleted": %d}""" count)
+        with ex ->
+            return ok (sprintf "Error: %s" ex.Message)
+    }
+
+let upsertVertices (args: UpsertVerticesArgs) : Task<Result<Content list, McpError>> =
+    task {
+        try
+            let! result = withCypherTransaction args.graph_name (fun tx -> task {
+                let vertices = parseJsonArr args.vertices
+                let mutable count = 0
+                for v in vertices.EnumerateArray() do
+                    let ident = getJsonStrRequired v "ident"
+                    let label = getJsonStr v "label" |> Option.defaultValue "Node"
+                    let props = match v.TryGetProperty("properties") with true, p -> p | _ -> v
+                    let setClause = buildVertexSetClause ident props
+                    let cypher = sprintf "MERGE (n:%s {ident: %s}) SET %s RETURN n" label (quoteStr ident) setClause
+                    let! _ = tx.Read cypher
+                    count <- count + 1
+                return sprintf """{"vertices_affected": %d}""" count
+            })
+            invalidateCache (sprintf "schema:%s" args.graph_name)
+            return ok result
+        with ex ->
+            return ok (sprintf "Error: %s" ex.Message)
+    }
+
+let upsertEdges (args: UpsertEdgesArgs) : Task<Result<Content list, McpError>> =
+    task {
+        try
+            let! result = withCypherTransaction args.graph_name (fun tx -> task {
+                let edges = parseJsonArr args.edges
+                let mutable count = 0
+                for e in edges.EnumerateArray() do
+                    let label = getJsonStrRequired e "label"
+                    let startIdent =
+                        getJsonStr e "start_ident"
+                        |> Option.orElseWith (fun () -> getJsonStr e "edge_start_ident")
+                        |> Option.defaultWith (fun () -> failwith "Edge missing start_ident")
+                    let endIdent =
+                        getJsonStr e "end_ident"
+                        |> Option.orElseWith (fun () -> getJsonStr e "edge_end_ident")
+                        |> Option.defaultWith (fun () -> failwith "Edge missing end_ident")
+                    let edgeIdent = getJsonStr e "ident" |> Option.defaultValue (sprintf "%s__%s__%s" startIdent label endIdent)
+                    let props = match e.TryGetProperty("properties") with true, p -> p | _ -> e
+                    let setClause = buildEdgeSetClause edgeIdent startIdent endIdent props
+                    let cypher =
+                        sprintf "MATCH (a {ident: %s}) MATCH (b {ident: %s}) MERGE (a)-[e:%s]->(b) SET %s RETURN e"
+                            (quoteStr startIdent) (quoteStr endIdent) label setClause
+                    let! _ = tx.Read cypher
+                    count <- count + 1
+                return sprintf """{"edges_affected": %d}""" count
+            })
+            return ok result
+        with ex ->
+            return ok (sprintf "Error: %s" ex.Message)
+    }
 
 let upsertGraph (args: UpsertGraphArgs) : Task<Result<Content list, McpError>> =
     task {
