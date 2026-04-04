@@ -40,6 +40,8 @@ jobs:
       - name: Login to NuGet via OIDC
         uses: NuGet/login@v1
         id: nuget-login
+        with:
+          user: neftedollar
 
       - name: Push to NuGet
         run: |
