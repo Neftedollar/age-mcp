@@ -40,16 +40,22 @@ jobs:
       - name: Get NuGet token via OIDC
         id: nuget-token
         run: |
-          OIDC_TOKEN=$(curl -sS \
+          echo "Requesting OIDC token..."
+          OIDC_RESPONSE=$(curl -sS \
             -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
-            "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=nuget.org" \
-            | jq -r '.value')
+            "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=nuget.org")
+          echo "OIDC response (first 200 chars): ${OIDC_RESPONSE:0:200}"
 
-          NUGET_TOKEN=$(curl -sS -X POST \
+          OIDC_TOKEN=$(echo "$OIDC_RESPONSE" | jq -r '.value')
+
+          echo "Exchanging OIDC token with NuGet..."
+          NUGET_RESPONSE=$(curl -sS -X POST \
             "https://www.nuget.org/packages/manage/publish-oidc-key" \
             -H "Content-Type: application/json" \
-            -d "{\"packageName\": \"AgeMcp\", \"oidcToken\": \"$OIDC_TOKEN\"}" \
-            | jq -r '.apiKey')
+            -d "{\"packageName\": \"AgeMcp\", \"oidcToken\": \"$OIDC_TOKEN\"}")
+          echo "NuGet response (first 200 chars): ${NUGET_RESPONSE:0:200}"
+
+          NUGET_TOKEN=$(echo "$NUGET_RESPONSE" | jq -r '.apiKey')
 
           echo "::add-mask::$NUGET_TOKEN"
           echo "token=$NUGET_TOKEN" >> "$GITHUB_OUTPUT"
