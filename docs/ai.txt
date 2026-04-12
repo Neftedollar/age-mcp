@@ -1,0 +1,5 @@
+AI discovery file for age-mcp docs.
+
+Primary: https://neftedollar.com/age-mcp/llms.txt
+Extended: https://neftedollar.com/age-mcp/llms-full.txt
+Actions: https://neftedollar.com/age-mcp/mcp-actions.json

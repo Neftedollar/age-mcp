@@ -175,7 +175,7 @@ A: age-mcp has 21 tools (vs 3-5), Graph RAG, visualization, batch transactions, 
 ## Links
 
 - Source: https://github.com/Neftedollar/age-mcp
-- Docs: https://neftedollar.github.io/age-mcp
+- Docs: https://neftedollar.com/age-mcp
 - NuGet: https://www.nuget.org/packages/AgeMcp
 - Apache AGE: https://age.apache.org
 - MCP: https://modelcontextprotocol.io

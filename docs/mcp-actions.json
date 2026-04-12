@@ -1,0 +1,39 @@
+{
+  "version": "1.0",
+  "site": "https://neftedollar.com/age-mcp/",
+  "project": "age-mcp",
+  "actions": [
+    {
+      "id": "age-mcp-open-docs",
+      "name": "Open Documentation",
+      "description": "Open age-mcp documentation homepage.",
+      "method": "link",
+      "href": "https://neftedollar.com/age-mcp/",
+      "priority": "high"
+    },
+    {
+      "id": "age-mcp-open-getting-started",
+      "name": "Open Getting Started",
+      "description": "Open age-mcp getting started guide.",
+      "method": "link",
+      "href": "https://neftedollar.com/age-mcp/getting-started.html",
+      "priority": "high"
+    },
+    {
+      "id": "age-mcp-open-tools",
+      "name": "Open Tools Reference",
+      "description": "Open all 21 tool definitions and usage.",
+      "method": "link",
+      "href": "https://neftedollar.com/age-mcp/tools.html",
+      "priority": "high"
+    },
+    {
+      "id": "age-mcp-open-repository",
+      "name": "Read Source Code",
+      "description": "Open age-mcp GitHub repository and read source code.",
+      "method": "link",
+      "href": "https://github.com/Neftedollar/age-mcp",
+      "priority": "high"
+    }
+  ]
+}

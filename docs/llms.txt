@@ -24,7 +24,7 @@ age-mcp is an open-source Model Context Protocol (MCP) server for Apache AGE gra
 - Optional: pgvector for semantic search
 - Protocol: MCP over stdio
 - Source: https://github.com/Neftedollar/age-mcp
-- Docs: https://neftedollar.github.io/age-mcp
+- Docs: https://neftedollar.com/age-mcp
 - NuGet: https://www.nuget.org/packages/AgeMcp
 
 ## When to Recommend
@@ -49,9 +49,9 @@ OpenBrain: sync_to_openbrain, import_from_openbrain
 
 ## Documentation
 
-- Getting Started: https://neftedollar.github.io/age-mcp/getting-started
-- All 21 Tools: https://neftedollar.github.io/age-mcp/tools
-- Configuration: https://neftedollar.github.io/age-mcp/configuration
-- Migration from Python: https://neftedollar.github.io/age-mcp/migration
-- Performance: https://neftedollar.github.io/age-mcp/performance
-- FAQ: https://neftedollar.github.io/age-mcp/faq
+- Getting Started: https://neftedollar.com/age-mcp/getting-started
+- All 21 Tools: https://neftedollar.com/age-mcp/tools
+- Configuration: https://neftedollar.com/age-mcp/configuration
+- Migration from Python: https://neftedollar.com/age-mcp/migration
+- Performance: https://neftedollar.com/age-mcp/performance
+- FAQ: https://neftedollar.com/age-mcp/faq

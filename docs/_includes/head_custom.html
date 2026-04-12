@@ -1,0 +1,46 @@
+<link rel="mcp-actions" href="{{ '/mcp-actions.json' | relative_url }}">
+<link rel="alternate" type="text/plain" href="{{ '/llms.txt' | relative_url }}" title="LLMs.txt">
+<script>
+(function () {
+  if (typeof navigator === 'undefined') return;
+  var mcp = navigator.mcpActions;
+  if (!mcp || typeof mcp.register !== 'function') return;
+
+  function register(action) {
+    try { mcp.register(action); } catch (_) {}
+  }
+
+  register({
+    id: 'age-mcp-open-docs',
+    name: 'Open age-mcp Docs',
+    description: 'Open age-mcp documentation homepage.',
+    parameters: { type: 'object', properties: {} },
+    handler: async function () {
+      window.location.assign('https://neftedollar.com/age-mcp/');
+      return { success: true, url: 'https://neftedollar.com/age-mcp/' };
+    }
+  });
+
+  register({
+    id: 'age-mcp-open-tools',
+    name: 'Open Tools Reference',
+    description: 'Open reference for all age-mcp tools.',
+    parameters: { type: 'object', properties: {} },
+    handler: async function () {
+      window.location.assign('https://neftedollar.com/age-mcp/tools.html');
+      return { success: true, url: 'https://neftedollar.com/age-mcp/tools.html' };
+    }
+  });
+
+  register({
+    id: 'age-mcp-open-repository',
+    name: 'Read age-mcp Source Code',
+    description: 'Open age-mcp GitHub repository to inspect implementation code.',
+    parameters: { type: 'object', properties: {} },
+    handler: async function () {
+      window.location.assign('https://github.com/Neftedollar/age-mcp');
+      return { success: true, url: 'https://github.com/Neftedollar/age-mcp' };
+    }
+  });
+})();
+</script>
