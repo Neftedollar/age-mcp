@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8' />
+<title>AgeMcp.Bench.Benchmarks.ToolBenchmarks-20260403-115021</title>
+
+<style type="text/css">
+	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
+	td, th { padding: 6px 13px; border: 1px solid #ddd; text-align: right; }
+	tr { background-color: #fff; border-top: 1px solid #ccc; }
+	tr:nth-child(even) { background: #f8f8f8; }
+</style>
+</head>
+<body>
+<pre><code>
+BenchmarkDotNet v0.14.0, macOS 26.2 (25C56) [Darwin 25.2.0]
+Apple M1 Pro, 1 CPU, 10 logical and 10 physical cores
+.NET SDK 10.0.201
+  [Host]     : .NET 10.0.5 (10.0.526.15411), Arm64 RyuJIT AdvSIMD DEBUG
+  Job-QAJHKF : .NET 10.0.5 (10.0.526.15411), Arm64 RyuJIT AdvSIMD
+</code></pre>
+<pre><code>IterationCount=20  WarmupCount=5  
+</code></pre>
+
+<table>
+<thead><tr><th>Method                  </th><th>Mean      </th><th>Error     </th><th>StdDev    </th><th>Gen0</th><th>Gen1</th><th>Allocated</th>
+</tr>
+</thead><tbody><tr><td>list_graphs</td><td>62.15 ns</td><td>1.199 ns</td><td>1.283 ns</td><td>0.0343</td><td>-</td><td>216 B</td>
+</tr><tr><td>&#39;get_or_create_graph (exists)&#39;</td><td>774,622.03 ns</td><td>38,559.638 ns</td><td>42,858.936 ns</td><td>-</td><td>-</td><td>5591 B</td>
+</tr><tr><td>&#39;cypher_query (1 vertex)&#39;</td><td>1,030,959.14 ns</td><td>41,663.399 ns</td><td>47,979.632 ns</td><td>7.8125</td><td>-</td><td>57771 B</td>
+</tr><tr><td>get_schema</td><td>116.69 ns</td><td>0.262 ns</td><td>0.281 ns</td><td>0.0548</td><td>-</td><td>344 B</td>
+</tr><tr><td>&#39;search_vertices (limit=2)&#39;</td><td>2,049,397.50 ns</td><td>1,214,090.568 ns</td><td>1,299,063.307 ns</td><td>3.9063</td><td>-</td><td>36043 B</td>
+</tr><tr><td>&#39;search_vertices (all Person)&#39;</td><td>1,917,625.66 ns</td><td>529,848.784 ns</td><td>610,174.648 ns</td><td>27.3438</td><td>3.9063</td><td>194441 B</td>
+</tr><tr><td>&#39;search_edges (all)&#39;</td><td>1,640,050.94 ns</td><td>66,859.770 ns</td><td>74,314.457 ns</td><td>23.4375</td><td>-</td><td>153329 B</td>
+</tr><tr><td>&#39;get_neighbors (depth=1)&#39;</td><td>91,614,511.79 ns</td><td>1,780,261.546 ns</td><td>2,050,151.844 ns</td><td>-</td><td>-</td><td>233251 B</td>
+</tr><tr><td>export_graph</td><td>71,350,147.14 ns</td><td>1,004,406.177 ns</td><td>1,074,703.357 ns</td><td>-</td><td>-</td><td>472477 B</td>
+</tr></tbody></table>
+</body>
+</html>
